@@ -1,10 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: demo-app
+  name: demo-app  # Kustomize превратит в prod-demo-app
 spec:
   replicas: 3
+  selector:
+    matchLabels:
+      app: demo-app
+      environment: production
   template:
+    metadata:
+      labels:
+        app: demo-app
+        environment: production
     spec:
       containers:
       - name: demo-app
@@ -21,25 +29,3 @@ spec:
           limits:
             memory: "256Mi"
             cpu: "500m"
-        # Исправленный securityContext для nginx
-        securityContext:
-          allowPrivilegeEscalation: false
-          capabilities:
-            drop:
-            - ALL
-          readOnlyRootFilesystem: false  # Nginx нужен доступ на запись для временных файлов
-          runAsNonRoot: true
-          runAsUser: 101  # nginx user в alpine контейнере
-          seccompProfile:
-            type: RuntimeDefault
-        # Добавляем volume для временных файлов nginx
-        volumeMounts:
-        - name: nginx-cache
-          mountPath: /var/cache/nginx
-        - name: nginx-tmp
-          mountPath: /tmp
-      volumes:
-      - name: nginx-cache
-        emptyDir: {}
-      - name: nginx-tmp
-        emptyDir: {}
