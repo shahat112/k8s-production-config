@@ -1,0 +1,63 @@
+# Kubernetes
+kubeconfig
+*.kubeconfig
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+
+# Docker
+.env
+.dockerignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+
+# Secrets
+secrets.yaml
+*.secret.yaml
+
+# Local development
+local-values.yaml
+
+# Бинарные файлы
+*.bin
+*.exe
+*-amd64
+*-linux
+
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+terraform.tfstate.backup
+
+# Сертификаты и ключи
+*.pem
+*.key
+*.crt
+cert-chain.pem
+
+# Временные файлы
+*.bak
+*.tmp
+*.log
+

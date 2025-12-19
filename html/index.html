@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Demo App - GitOps</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .endpoint {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Demo Application - GitOps</h1>
+        <div class="info">
+            <p>This application is deployed using GitOps methodology with ArgoCD</p>
+            <p><strong>Environment:</strong> <span id="env">Loading...</span></p>
+            <p><strong>Pod:</strong> <span id="pod">Loading...</span></p>
+        </div>
+        
+        <h2>Available Endpoints:</h2>
+        <div class="endpoints">
+            <div class="endpoint">
+                <h3>📊 Health Check</h3>
+                <p><a href="/health" style="color: #4ade80;">/health</a></p>
+            </div>
+            <div class="endpoint">
+                <h3>📈 Metrics</h3>
+                <p><a href="/metrics" style="color: #fbbf24;">/metrics</a></p>
+            </div>
+            <div class="endpoint">
+                <h3>🏠 Home</h3>
+                <p><a href="/" style="color: #60a5fa;">/</a></p>
+            </div>
+        </div>
+        
+        <div style="margin-top: 40px; font-size: 0.9em; opacity: 0.8;">
+            <p>Managed by ArgoCD | Monitored by Prometheus/Grafana</p>
+        </div>
+    </div>
+    
+    <script>
+        // Set environment from ENV variable or default
+        document.getElementById('env').textContent = '${ENVIRONMENT:-production}';
+        
+        // Get pod name from hostname
+        document.getElementById('pod').textContent = window.location.hostname;
+        
+        // Add current time
+        const timeElement = document.createElement('p');
+        timeElement.innerHTML = `<strong>Time:</strong> ${new Date().toLocaleString()}`;
+        document.querySelector('.info').appendChild(timeElement);
+    </script>
+</body>
+</html>

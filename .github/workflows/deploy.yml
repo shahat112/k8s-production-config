@@ -1,0 +1,111 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run kubeval
+      uses: instrumenta/kubeval-action@master
+      with:
+        files: k8s-manifests/
+        
+    - name: Run kustomize build
+      run: |
+        kubectl kustomize k8s-manifests/overlays/dev > /dev/null
+        kubectl kustomize k8s-manifests/overlays/prod > /dev/null
+      continue-on-error: true
+
+  build-and-push:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Log in to the Container registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v4
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=ref,event=branch
+          type=sha,prefix={{branch}}-
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
+      with:
+        context: .
+        push: ${{ github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+
+  deploy-dev:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Setup kubeconfig for Development
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG_DEV }}" > $HOME/.kube/config
+        
+    - name: Apply ArgoCD Application for Development
+      run: |
+        kubectl apply -f k8s-manifests/applications/demo-app-dev.yaml --namespace=argocd
+        kubectl get applications -n argocd
+
+  deploy-prod:
+    needs: [test, build-and-push]
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'latest'
+    
+    - name: Setup kubeconfig for Production
+      run: |
+        mkdir -p $HOME/.kube
+        echo "${{ secrets.KUBE_CONFIG_PROD }}" > $HOME/.kube/config
+        
+    - name: Apply ArgoCD Application for Production
+      run: |
+        kubectl apply -f k8s-manifests/applications/demo-app-prod.yaml --namespace=argocd
+        kubectl get applications -n argocd
+        
+    - name: Wait for ArgoCD sync
+      run: |
+        sleep 10
+        kubectl wait --for=condition=Synced application/demo-app-prod -n argocd --timeout=120s

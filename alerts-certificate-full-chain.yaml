@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: alertmanager-tls-full
+  namespace: monitoring
+spec:
+  secretName: alertmanager-tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: alerts.158.160.206.202.nip.io
+  dnsNames:
+  - alerts.158.160.206.202.nip.io
+  # Важно: запрашиваем сертификат с полной цепочкой
+  usages:
+  - server auth
+  - digital signature
+  - key encipherment

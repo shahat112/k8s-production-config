@@ -1,0 +1,174 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: test-app
+  template:
+    metadata:
+      labels:
+        app: test-app
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: html-content
+          mountPath: /usr/share/nginx/html
+      volumes:
+      - name: html-content
+        configMap:
+          name: test-app-html
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-app-html
+  namespace: default
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>🎉 Shahat112 MVP Platform</title>
+        <style>
+            body { 
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+                text-align: center; 
+                margin: 0;
+                padding: 0;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+            }
+            .container {
+                background: rgba(255, 255, 255, 0.1);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                padding: 40px;
+                max-width: 800px;
+                margin: 20px;
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            }
+            h1 { 
+                color: white;
+                font-size: 2.5em;
+                margin-bottom: 20px;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+            }
+            .status { 
+                background: rgba(255, 255, 255, 0.15);
+                padding: 25px;
+                margin: 25px 0;
+                border-radius: 15px;
+                border-left: 5px solid #4CAF50;
+            }
+            .badge {
+                display: inline-block;
+                background: rgba(76, 175, 80, 0.8);
+                color: white;
+                padding: 8px 20px;
+                border-radius: 25px;
+                margin: 5px;
+                font-size: 0.9em;
+                font-weight: bold;
+            }
+            .ip-address {
+                font-family: monospace;
+                background: rgba(0,0,0,0.2);
+                padding: 10px 20px;
+                border-radius: 10px;
+                margin: 10px 0;
+                font-size: 1.2em;
+                letter-spacing: 1px;
+            }
+            .time {
+                font-size: 1.1em;
+                font-weight: bold;
+                color: #ffeb3b;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🚀 Shahat112 MVP Infrastructure Platform</h1>
+            
+            <div class="status">
+                <h2>✅ День 2: Ingress, DNS, CI/CD</h2>
+                <p>Kubernetes кластер успешно развернут на Yandex Cloud!</p>
+                
+                <div class="badge">Kubernetes 1.30</div>
+                <div class="badge">Terraform</div>
+                <div class="badge">Helm</div>
+                <div class="badge">Ingress-NGINX</div>
+                
+                <p style="margin-top: 20px;">🌐 <strong>Внешний IP:</strong></p>
+                <div class="ip-address">158.160.206.202</div>
+                
+                <p>📅 <strong>Время развертывания:</strong> <span class="time" id="time"></span></p>
+                <p>🔧 <strong>Статус:</strong> <span style="color: #4CAF50;">● Работает</span></p>
+            </div>
+            
+            <div style="margin-top: 30px;">
+                <h3>🎯 Задачи на сегодня:</h3>
+                <ul style="text-align: left; display: inline-block;">
+                    <li>✅ Создание кластера Kubernetes</li>
+                    <li>✅ Установка Ingress Controller</li>
+                    <li>🔄 Настройка ExternalDNS</li>
+                    <li>⏳ Установка Cert-Manager</li>
+                    <li>⏳ Настройка CI/CD Pipeline</li>
+                </ul>
+            </div>
+        </div>
+        
+        <script>
+            function updateTime() {
+                document.getElementById('time').textContent = new Date().toLocaleString();
+            }
+            updateTime();
+            setInterval(updateTime, 1000);
+        </script>
+    </body>
+    </html>
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-app-service
+  namespace: default
+spec:
+  selector:
+    app: test-app
+  ports:
+  - port: 80
+    targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-app-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "158.160.206.202"
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-app-service
+            port:
+              number: 80

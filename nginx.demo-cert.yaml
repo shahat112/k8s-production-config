@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nginx-demo-certificate
+  namespace: default
+spec:
+  secretName: nginx-demo-tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: nginx.demo.158.160.206.202.nip.io
+  dnsNames:
+  - nginx.demo.158.160.206.202.nip.io

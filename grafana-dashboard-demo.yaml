@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: demo-apps-dashboard
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  demo-apps.json: |-
+    {
+      "dashboard": {
+        "id": null,
+        "title": "Demo Applications",
+        "tags": ["demo", "applications"],
+        "style": "dark",
+        "timezone": "browser",
+        "panels": [],
+        "time": {
+          "from": "now-6h",
+          "to": "now"
+        },
+        "refresh": "30s"
+      },
+      "overwrite": true
+    }

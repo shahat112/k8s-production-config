@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prod-demo-app
+  namespace: prod
+  labels:
+    app: demo-app
+    environment: production
+    managed-by: gitops
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: demo-app
+      environment: production
+  template:
+    metadata:
+      labels:
+        app: demo-app
+        environment: production
+        managed-by: gitops
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8080"
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:alpine
+        ports:
+        - containerPort: 8080  # Используем порт >1024 для non-root
+          name: http
+        env:
+        - name: ENVIRONMENT
+          value: "production"
+        - name: NGINX_PORT
+          value: "8080"
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 101  # nginx user
+          readOnlyRootFilesystem: false
+        volumeMounts:
+        - name: nginx-tmp
+          mountPath: /tmp
+        - name: nginx-cache
+          mountPath: /var/cache/nginx
+        command:
+        - /bin/sh
+        args:
+        - -c
+        - |
+          # Изменяем конфигурацию nginx на порт 8080
+          sed -i 's/listen\s*80;/listen 8080;/g' /etc/nginx/conf.d/default.conf
+          sed -i 's/listen\s*\[::\]:80;/listen [::]:8080;/g' /etc/nginx/conf.d/default.conf
+          # Запускаем nginx
+          nginx -g "daemon off;"
+      volumes:
+      - name: nginx-tmp
+        emptyDir: {}
+      - name: nginx-cache
+        emptyDir: {}

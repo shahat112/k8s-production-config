@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prod-certificate
+  namespace: prod
+spec:
+  secretName: prod-tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: prod.demo-app.158.160.206.202.nip.io
+  dnsNames:
+  - prod.demo-app.158.160.206.202.nip.io

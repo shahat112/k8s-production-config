@@ -1,0 +1,29 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: demo-apps-alerts
+  namespace: monitoring
+  labels:
+    release: kube-prometheus-stack
+    app: kube-prometheus-stack-prometheus
+spec:
+  groups:
+  - name: demo-apps
+    rules:
+    - alert: DemoAppDown
+      expr: up{job="demo-apps-service-monitor"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Demo application {{ $labels.instance }} is down"
+        description: "Application {{ $labels.instance }} has been down for more than 1 minute"
+    
+    - alert: HighRequestRate
+      expr: rate(nginx_http_requests_total[5m]) > 100
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High request rate on {{ $labels.instance }}"
+        description: "Request rate is above 100 req/sec for 2 minutes"

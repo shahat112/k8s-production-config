@@ -1,0 +1,37 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations:
+    # SSL на стороне ingress
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    
+    # ВАЖНО: Используем HTTP backend (не HTTPS!)
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
+    
+    # Настройки для ArgoCD
+    nginx.ingress.kubernetes.io/proxy-body-size: "0"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    
+    # Отключаем проверку SSL для upstream (если вдруг)
+    nginx.ingress.kubernetes.io/proxy-ssl-verify: "off"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - argocd.158.160.206.202.nip.io
+    secretName: argocd-tls-secret
+  rules:
+  - host: argocd.158.160.206.202.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: argocd-server
+            port:
+              number: 80  # HTTP порт сервиса

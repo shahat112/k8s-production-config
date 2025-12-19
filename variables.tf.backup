@@ -1,0 +1,77 @@
+variable "cloud_id" {
+  description = "Yandex Cloud Cloud ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "folder_id" {
+  description = "Yandex Cloud Folder ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "zone" {
+  description = "Yandex Cloud Zone"
+  type        = string
+  default     = "ru-central1-a"
+}
+
+variable "service_account_key_file" {
+  description = "Path to service account key file"
+  type        = string
+  default     = "../../key.json"
+}
+
+variable "s3_access_key" {
+  description = "Access key for S3 storage"
+  type        = string
+  sensitive   = true
+}
+
+variable "s3_secret_key" {
+  description = "Secret key for S3 storage"
+  type        = string
+  sensitive   = true
+}
+
+# Переменные для модулей (если используются)
+variable "project_name" {
+  description = "Название проекта"
+  type        = string
+}
+
+variable "postgresql_password" {
+  description = "Пароль PostgreSQL"
+  type        = string
+  sensitive   = true
+}
+
+variable "redis_password" {
+  description = "Пароль Redis"
+  type        = string
+  sensitive   = true
+}
+
+variable "environment" {
+  description = "Окружение (prod, staging, dev)"
+  type        = string
+}
+
+variable "yc_token" {
+  description = "Yandex Cloud OAuth token"
+  type        = string
+  sensitive   = true
+}
+
+# Database module variables
+variable "postgresql_database" {
+  description = "Имя базы данных PostgreSQL"
+  type        = string
+  default     = "appdb"
+}
+
+variable "postgresql_username" {
+  description = "Имя пользователя PostgreSQL"
+  type        = string
+  default     = "appuser"
+}
