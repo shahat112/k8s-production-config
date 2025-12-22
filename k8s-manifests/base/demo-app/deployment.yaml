@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: demo-app
-        image: cr.yandex/crp9m7emlm2857t8hv32/demo-app:latest
+        image: cr.yandex/crp9m7emlm2857t8hv32/demo-app:f22728340ee436fd0e969614dd1dcb3a93064157
         ports:
         - containerPort: 3000
         - name: metrics
