@@ -2,15 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: demo-app
-  labels:
-    app: demo-app
   annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
     nginx.ingress.kubernetes.io/rewrite-target: /
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
   rules:
-  - host: prod.demo-app.158.160.206.202.nip.io
+  - host: demo.158.160.172.203.nip.io
     http:
       paths:
       - path: /
