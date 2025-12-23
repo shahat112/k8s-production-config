@@ -21,6 +21,8 @@ spec:
     spec:
       containers:
       - name: demo-app
+        image: cr.yandex/crpr7jos8ep5d7or6gcu/demo-app:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3000
         - name: metrics
