@@ -6,8 +6,10 @@ resources:
 - deployment.yaml
 - service.yaml
 - ingress.yaml
+- configmap.yaml
 
 commonLabels:
   app: demo-app
+  component: web
   managed-by: kustomize
   part-of: demo-project

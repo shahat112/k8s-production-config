@@ -4,23 +4,15 @@ metadata:
   name: production-demo-app
   namespace: argocd
 spec:
-  project: default
   source:
     repoURL: https://github.com/shahat112/k8s-production-config.git
     targetRevision: HEAD
-    path: k8s-manifests/overlays/prod
+    path: k8s-manifests/base/demo-app  # ПРАВИЛЬНЫЙ ПУТЬ!
   destination:
     server: https://kubernetes.default.svc
-    namespace: default  # Меняем с prod на default!
+    namespace: prod
+  project: default
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
-  ignoreDifferences:
-  - group: apps
-    kind: Deployment
-    name: demo-app
-    jsonPointers:
-    - /spec/selector  # Игнорируем селектор, т.к. он immutable
